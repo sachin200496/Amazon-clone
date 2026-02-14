@@ -5,48 +5,57 @@ import {
   Paper,
   Typography
 } from "@mui/material";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { useState } from "react";
-import { uploadToCloudinary } from "../../api/upload";
+import {yupResolver} from "@hookform/resolvers/yup";
+import { productSchema } from "../validation/productSchemas";
 
 export default function ProductForm({initialValues,onSubmit,loading,title}){
-    const {register, handleSubmit,setValue, formState:{errors}} = useForm({defaultValues: initialValues})
+    const {register, handleSubmit, formState:{errors}} = 
+    useForm({defaultValues: initialValues,resolver: yupResolver(productSchema)});
 
-    const [uploading, setUploading] = useState(false);
-    const [preview, setPreview] = useState(initialValues.image || ""
-    );
     
-    const handleImageUpload = async (e) =>{
-        const file = e.target.file[0];
-        if(!file) return;
-        setUploading(true);
+    const [preview, setPreview] = useState( initialValues?.image ? [initialValues.image] : []);
+    const [imageFiles, setImageFiles] = useState();
 
-        try{
-            const imageUrl = await uploadToCloudinary(file);
-            setValue("image", imageUrl);
-            setPreview(imageUrl);
+     const handleImageChange = (e) =>{
+            const files = Array.from(e.target.files);
+            if (!files.length) return;
+            setImageFiles(files);
+            setPreview(files.map(file => URL.createObjectURL(file)));
+        }
+    
+    const onSubmit = async(data) =>{
+        try{ 
+            const formData = new FormData();
+             formData.append("title", data.title);
+             formData.append("price", data.price);
+             formData.append("stock", data.stock);
+             formData.append("category", data.category);
+             formData.append("description", data.description);
+             imageFiles.forEach(file => formData.append("images", file));
+
+             await axios.post("http://localhost:5000/api/products", formData)
         }
         catch(err){
-            alert("Image upload failed")
-        }
-        finally{
-            setUploading(false);
-        }
-    };
+            console.error(err.response?.data || err.message)
+            alert("upload failed")
+        }}
 
+       
     return(
         <Paper sx={{p:3, maxWidth: 700}}>
             <Typography variant="h6" gutterBottom>
                 {title}
             </Typography>
             
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <Box component="form" onSubmit={handleSubmit(onSubmit)}>
              <Grid container spacing={2}>
                 <Grid item xs={12}>
                     <TextField 
                     label='Product Title' 
                     fullWidth
-                    {...register("title"),{required:"Title is required"}}
+                    {...register("title")}
                     error={!!errors.title}
                     helperText={errors.title ? errors.title.message : ''}
                     />
@@ -56,7 +65,7 @@ export default function ProductForm({initialValues,onSubmit,loading,title}){
                          label='Price'
                          type='number'
                          fullWidth
-                         {...register("price", {required:"Price is required"})}
+                         {...register("price")}
                          error={!!errors.price}
                          helperText={errors.price?.message}
                         />
@@ -67,7 +76,7 @@ export default function ProductForm({initialValues,onSubmit,loading,title}){
                         label="Stock"
                         type="number"
                         fullWidth
-                        {...register("stock", {required:"Stock is required"})}
+                        {...register("stock")}
                         error={!!errors.stock}
                         helperText={errors.stock ? errors.title.message : ""}
                         />
@@ -77,38 +86,11 @@ export default function ProductForm({initialValues,onSubmit,loading,title}){
                         <TextField 
                         label="category"
                         fullWidth
-                        {...register("category", {required:"Category is required"})}
+                        {...register("category")}
                         error={!!errors.category}
                         helperText={errors.category ? errors.category.message : ""}
                         />
                     </Grid>
-
-                    {/* image Upload */}
-                   <Grid item xs={12}>
-                    <Button variant="outlined" component="label">
-                        {uploading ? "Uploading..." : "Upload Image"}
-                        <input hidden type="file" accept="image/*" onChange={handleImageUpload} />
-                    </Button>
-
-                    {preview && (
-                        <Box sx={{mt:2}}>
-                            <img src={preview}
-                              alt="preview"
-                              style={{
-                                width:120,
-                                height:120,
-                                objectFit:"cover",
-                                borderRadius:4
-                              }}
-                            />
-                        </Box>
-                    )}
-
-                   </Grid>
-
-
-
-                    
 
                     <Grid item xs={12}>
                         <TextField
@@ -116,11 +98,39 @@ export default function ProductForm({initialValues,onSubmit,loading,title}){
                         fullWidth
                         multiline
                         rows={4}
-                        {...register("description", {required:"Description is required"})}
+                        {...register("description")}
                         error={!!errors.description}
                         helperText={errors.description ? errors.description.message : ""}
                         />
                     </Grid>
+
+                   <Grid item xs={12}>
+                    <Button variant="outlined" component="label">
+                       Upload Images
+                        <input hidden type="file" accept="image/*" multiple onChange={handleImageChange} />
+                    </Button>
+<Box sx={{mt:2,display:"flex", gap:2, flexWrap:"wrap"}}>
+                    {preview.map((src, i) => (
+                        
+                            <img src={src} key={i}
+                              alt="preview"
+                              style={{
+                                width:120,
+                                height:120,
+                                objectFit:"cover",
+                                borderRadius:4
+                              }}
+                            />)
+                        
+                    )}
+</Box>
+                   </Grid>
+
+
+
+                    
+
+                    
                     <Grid item xs={12}>
                         <Button 
                         type="submit" 
@@ -135,7 +145,7 @@ export default function ProductForm({initialValues,onSubmit,loading,title}){
                 
                 </Grid>
              </Grid>  
-            </form>
+            </Box>
         </Paper>
     )
 

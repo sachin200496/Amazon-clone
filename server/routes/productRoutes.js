@@ -9,7 +9,7 @@ export const router = express.Router();
 
 router.get("/", getProducts);
 router.get("/:id", getProductById);
-router.post("/", protect, adminOnly, upload.array("image", 5), createProduct);
+router.post("/", protect, adminOnly, upload.array("images", 5), createProduct);
 router.put("/:id", protect, adminOnly, updateProduct);
 router.delete("/:id", protect, adminOnly, deleteProduct);
 

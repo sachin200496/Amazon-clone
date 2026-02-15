@@ -7,6 +7,7 @@ import { productRoutes } from "./routes/productRoutes.js";
 import { cartRoutes } from "./routes/cartRoutes.js";
 import { orderRoutes } from "./routes/orderRoutes.js";
 import { error } from "./middleware/errorMiddleware.js";
+import connectDb from "./config/db.js";
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(express.json());
 app.use(error);
 
+connectDb();
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);

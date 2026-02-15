@@ -3,24 +3,21 @@ import { success, error } from "../utils/apiResponse.js";
 import cloudinary from "../config/cloudinary.js";
 
 export const createProduct = async (req, res) => {
+try{
+  if(!req.files || req.files.length === 0){
+    return error(res, "No images uploaded", 400);
+  }
+  const imageUrls = await Promise.all(req.files.map(file => new Promise((resolve,reject)=>{
+    cloudinary.uploader.upload_stream({folder:"amazon-clone/products",resource_type:"image"},
+        (error,result) =>{ if(error) return reject(error); resolve(result.secure_url)}).end(file.buffer);
+  })))
 
-    if(req.files && req.files.length > 0) {
-        const uploadPromises = req.files.map(file => cloudinary.uploader.upload_stream({ resource_type: "auto" }, (err, result) => {
-            if (err) {
-                return error(res, err.message, 500);
-            }
-            req.body.image = [...(req.body.image || []), result.secure_url];
-        }));
-        Promise.all(uploadPromises).then(() => {
-            Product.create(req.body)
-                .then(product => success(res, product))
-                .catch(err => error(res, err.message, 500));
-        });
-    } else {
-        Product.create(req.body)
-            .then(product => success(res, product))
-            .catch(err => error(res, err.message, 500));
-    }
+  const product = await Product.create({...req.body, images: imageUrls});
+  success(res, product);
+}
+catch(err){
+    error(res, err.message, 500);
+}
 }
 
 export const getProducts = async (req, res) => {

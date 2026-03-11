@@ -1,4 +1,6 @@
-export const error = (err,res,next)=>{
-    res.status(500).json({message:err.message})
-    next();
-}
+// Error handling middleware must have 4 parameters (err, req, res, next)
+export const error = (err, req, res, next) => {
+    const statusCode = err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    res.status(statusCode).json({ success: false, message });
+};

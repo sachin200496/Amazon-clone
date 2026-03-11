@@ -1,7 +1,10 @@
 import jwt from "jsonwebtoken";
 
- const generateToken = (user) =>{
-  jwt.sign({id:user._id,isAdmin:user.isAdmin},process.env.jwt_secret,{expiresIn:"1d"})
-}
+// Accepts either (userId, isAdmin) and returns the signed token
+const generateToken = (userId, isAdmin = false) => {
+  // Allow either env var name (JWT_SECRET) or legacy jwt_secret
+  const secret = process.env.JWT_SECRET || process.env.jwt_secret;
+  return jwt.sign({ id: userId, isAdmin }, secret, { expiresIn: "1d" });
+};
 
 export default generateToken;

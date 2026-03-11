@@ -1,10 +1,13 @@
 import express from "express";
-import { adminOnly } from "../middleware/adminMiddleware.js";
 import { protect } from "../middleware/authMiddleware.js";
-import { addToCart, getCart, removeFromCart } from "../controllers/cartController.js";
+import { addToCart, getCart, updateCartItem, removeFromCart, clearCart } from "../controllers/cartController.js";
 
-export const router = express.Router();
+const router = express.Router();
 
 router.post("/add", protect, addToCart);
 router.get("/", protect, getCart);
-router.delete("/remove/:productId", protect, removeFromCart);
+router.put("/update", protect, updateCartItem);
+router.delete("/remove", protect, removeFromCart);
+router.delete("/clear", protect, clearCart);
+
+export default router;

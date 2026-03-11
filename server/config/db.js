@@ -2,7 +2,9 @@
 import mongoose from "mongoose";
 
 const connectDb = async()=>{
-    await mongoose.connect(process.env.VITE_MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI,{autoSelectFamily:false
+    }
+    );
     console.log("MongoDb connected")
 };
 

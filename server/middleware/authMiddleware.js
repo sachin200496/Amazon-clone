@@ -6,7 +6,7 @@ export const protect = (req, res, next) => {
     const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
     
     if (!token) {
-      return res.status(401).json({ success: false, message: "No token found" });
+      return res.status(401).json({ success: false, message: "No token found in the browser" });
     }
     
     const secret = process.env.JWT_SECRET || process.env.jwt_secret;

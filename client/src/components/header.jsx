@@ -2,7 +2,7 @@ import { AppBar, Toolbar, Typography, InputBase, Badge, IconButton, Box } from "
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import SearchIcon from "@mui/icons-material/Search";
 import personOutlineIcon from '@mui/icons-material/PersonOutline';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import React from "react";
 import { useCartStore } from "../store/cartStore";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -12,10 +12,13 @@ import Divider from "@mui/material/Divider";
 import { useAuthStore } from "../store/authStore";
 
 export default function Header() {
+    const navigate = useNavigate();
     const cart = useCartStore((s) => s.cart);
     const user = useAuthStore((s) => s.user);
+    const role = useAuthStore((s) => s.role);
+    const logout = useAuthStore((s) => s.logout);
     
-
+    console.log("Current user:", user, "Role:", role);
 
     // user icon menu 
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -27,6 +30,16 @@ export default function Header() {
 
     const handleMenuClose = () => {
         setAnchorEl(null);
+    };
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            handleMenuClose();
+            navigate('/login');
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
     };
     return (
         <AppBar position="sticky" sx={{ bgcolor: "#131921" }}>
@@ -97,41 +110,45 @@ export default function Header() {
                 <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.5, sm: 1 }, marginRight:2 }}>
                     
                     <Typography sx={{ color: "white", fontSize: { xs: 12, sm: 16 },display:{xs:'none',sm:'none',md:'block'} }}>
-                        {user ? `Hello, ${user.name}` : 'Hello, Guest'}
+                        {user ? `Hello, ${user.data.name}` : 'Hello, Guest'}
                     </Typography>
+                    
+                    {role === 'customer' && (
+                        <IconButton
+                            component={Link}
+                            to="/cart"
+                            sx={{
+                                color: "white",
+                                p: { xs: 0.5, sm: 1 },
+                            }}
+                        >
+                            <Badge badgeContent={cart.length} color="error">
+                                <ShoppingCartIcon fontSize="large" />
+                            </Badge>
+                        </IconButton>
+                    )}
+                    
                     <IconButton
-                    component={Link}
-                    to="/cart"
-                    sx={{
-                        color: "white",
-                        p: { xs: 0.5, sm: 1 },
-                    }}
-                >
-                    <Badge badgeContent={cart.length} color="error">
-                        <ShoppingCartIcon fontSize="large" />
-                    </Badge>
-                </IconButton>
-                <IconButton
-                    onClick={handleMenuOpen}
-                    sx={{ color: "white" }}
-                >
-                    <AccountCircleIcon fontSize="large" />
-                </IconButton>
+                        onClick={handleMenuOpen}
+                        sx={{ color: "white" }}
+                    >
+                        <AccountCircleIcon fontSize="large" />
+                    </IconButton>
 
-                <Menu
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleMenuClose}
-                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                    transformOrigin={{ vertical: "top", horizontal: "right" }}
-                >
-                    <MenuItem onClick={handleMenuClose} component={Link} to="/profile">My Profile</MenuItem>
-                    <MenuItem onClick={handleMenuClose} component={Link} to="/orders">Orders</MenuItem>
-                    <Divider />
-                    <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
-                </Menu>
+                    <Menu
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleMenuClose}
+                        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                        transformOrigin={{ vertical: "top", horizontal: "right" }}
+                    >
+                        <MenuItem onClick={handleMenuClose} component={Link} to="/profile">My Profile</MenuItem>
+                        <MenuItem onClick={handleMenuClose} component={Link} to="/orders">Orders</MenuItem>
+                        <Divider />
+                        <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                    </Menu>
 
-</Box>
+                </Box>
 
             </Toolbar>
         </AppBar>

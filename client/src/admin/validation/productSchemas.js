@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 export const productSchema = yup.object().shape({
-  title: yup.string().required("Title is required"),
+  name: yup.string().required("Name is required"),
   price: yup
     .number()
     .typeError("Price must be a number")
@@ -13,6 +13,5 @@ export const productSchema = yup.object().shape({
     .min(0, "Stock cannot be negative")
     .required("Stock is required"),
   category: yup.string().required("Category is required"),
-  description: yup.string().required("Description is required"),
-  image: yup.string().required("Image is required")
+  description: yup.string().required("Description is required")
 });

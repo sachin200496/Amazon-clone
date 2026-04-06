@@ -17,10 +17,16 @@ import connectDb from "./config/db.js";
 const app = express();
 
 // ✅ CORS first (for credentials)
-app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",
-  credentials: true
-}));
+const corsOptions = {
+  origin: (process.env.FRONTEND_URL || "http://localhost:5173").replace(/\/$/, ''),
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+console.log("CORS configured for origin:", corsOptions.origin);
+
+app.use(cors(corsOptions));
 
 // ✅ Cookie parser (parses incoming cookies)
 app.use(cookieParser());
@@ -39,6 +45,6 @@ app.use("/api/orders", orderRoute);
 app.use(error);
 
 app.listen(process.env.PORT, () => {
-    console.log(`Server running on port `);
+    console.log(`Server running on port ${process.env.PORT}`);
     connectDB();
 }   );

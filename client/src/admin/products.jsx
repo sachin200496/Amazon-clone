@@ -7,20 +7,20 @@ import {
   TableRow,
   Paper,
   Typography,
-  Button
+  Button,Box
 } from "@mui/material";
 import { Link } from "react-router-dom";
-
-
-const products = [
-    {id:1,title:'Wireless Headphones',price:5000,stock:100},
-    {id:2,title:'Smart Watch',price:2999,stock:10},
-    {id:3,title:'Bluetooth Speaker',price:1999,stock:200},
-    {id:4,title:'Laptop Stand',price:1499,stock:50},
-];
+import { useProductStore } from "./store/store.js";
+import { useEffect } from "react";
 
 export default function Products(){
+const products = useProductStore((s)=> s.products)
+const getProducts = useProductStore((s) => s.getProducts)
 
+useEffect(() => {
+    getProducts()
+},[])
+console.log(products)
     return( 
         <>
         <Box sx={{display:"flex",justifyContent:"space-between",alignItems:"center",mb:2}}>
@@ -36,35 +36,36 @@ export default function Products(){
         <Table>
             <TableHead>
                 <TableRow>
-                    <TableCell>Id</TableCell>
-                    <TableCell>Title</TableCell>
-                    <TableCell>Category</TableCell>
-                    <TableCell>Price</TableCell>
-                    <TableCell>Stock</TableCell>
-                    <TableCell align="right">Actions</TableCell>
+                    <TableCell sx={{fontWeight:600,fontSize:"1rem"}}>Id</TableCell>
+                    <TableCell sx={{fontWeight:600,fontSize:"1rem"}}>Name</TableCell>
+                    <TableCell sx={{fontWeight:600,fontSize:"1rem"}}>Category</TableCell>
+                    <TableCell sx={{fontWeight:600,fontSize:"1rem"}}>Price</TableCell>
+                    <TableCell sx={{fontWeight:600,fontSize:"1rem"}}>Stock</TableCell>
+                    <TableCell align="right" sx={{fontWeight:600,fontSize:"1rem"}}>Actions</TableCell>
                 </TableRow>
             </TableHead>
             <TableBody>
-                {products.map((p) => (
-                    <TableRow key={p.id}>
-                        <TableCell>{p.id}</TableCell>
-                        <TableCell>{p.title}</TableCell>
-                        <TableCell>{p.category}</TableCell>
-                        <TableCell>₹{p.price}</TableCell>
-                        <TableCell>{p.stock}</TableCell>
-                        <TableCell align="right">
-                            <Button size="small" component={Link}
-                            to={`/admin/products/edit/${p.id}`}>
-                                Edit
-                            </Button>
-                        </TableCell>
-                    </TableRow>
-                ))}
-                {products.length === 0 && (
+                {products && products.length > 0 ? (
+                    products.map((p) => (
+                        <TableRow key={p._id}>
+                            <TableCell>{p._id}</TableCell>
+                            <TableCell>{p.name}</TableCell>
+                            <TableCell>{p.category}</TableCell>
+                            <TableCell>₹{p.price}</TableCell>
+                            <TableCell>{p.stock}</TableCell>
+                            <TableCell align="right">
+                                <Button size="small" sx={{border:"1px solid black"}} component={Link}
+                                to={`/admin/products/edit/${p._id}`}>
+                                    Edit
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                    ))
+                ) : (
                     <TableRow>
-                        <TableCell colSpan={5} align="center">
+                        <TableCell colSpan={6} align="center">
                             No Products Found
-                            </TableCell> 
+                        </TableCell> 
                     </TableRow>
                 )}
             </TableBody>

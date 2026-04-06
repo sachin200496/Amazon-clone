@@ -7,15 +7,16 @@ import {
   Paper,
   Typography
 } from "@mui/material";
-
-const users = [
-    {id:1,name:'Rahul',email:'rahul@example.com',role:'Admin'},
-    {id:2,name:'Sundar',email:'sundar@example.com',role:''},
-    {id:3,name:'Aaron',email:'aaron@example.com',role:'Admin'},
-    {id:4,name:'Sanju',email:'sanju@example.com',role:'Admin'}
-]
+import { useUserStore } from "./store/store";
+import { useEffect } from "react";
 
 export default function Users(){
+
+    const { users, getUsers } = useUserStore();
+    console.log("Users component rendered, users:", users);
+    useEffect(() => {
+        getUsers();
+    }, [getUsers]);
 
     return(
         <>
@@ -26,9 +27,9 @@ export default function Users(){
             <Table>
                 <TableHead>
                     <TableRow>
-                        <TableCell>Name</TableCell>
-                        <TableCell>Email</TableCell>
-                        <TableCell>Role</TableCell>
+                        <TableCell sx={{fontWeight:600,fontSize:"1rem"}}>Name</TableCell>
+                        <TableCell sx={{fontWeight:600,fontSize:"1rem"}}>Email</TableCell>
+                        <TableCell sx={{fontWeight:600,fontSize:"1rem"}}>Role</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -36,7 +37,7 @@ export default function Users(){
                         <TableRow key={u.id}>
                             <TableCell>{u.name}</TableCell>
                             <TableCell>{u.email}</TableCell>
-                            <TableCell>{u.role}</TableCell>
+                            <TableCell>{u.isAdmin ? "Admin" : "User"}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

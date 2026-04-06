@@ -25,8 +25,8 @@ export const register = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        isAdmin: user.isAdmin,
-        token: token, // ← Return token in response
+        isAdmin: user.isAdmin
+        
       }, "User registered successfully");
     }
     return error(res, "Unable to create user", 500);
@@ -49,8 +49,8 @@ export const login = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        isAdmin: user.isAdmin,
-        token: token, // ← Return token in response
+        isAdmin: user.isAdmin
+       
       }, "Login successful");
     } else {
       return error(res, "Invalid email or password", 401);
@@ -186,6 +186,27 @@ export const getAuditLogs = async (req, res) => {
       .sort({ timestamp: -1 })
       .limit(100); // Last 100 logs
     return success(res, logs, "Audit logs retrieved successfully");
+  } catch (err) {
+    return error(res, err.message || "Server error", 500);
+  }
+};
+
+// Get current user from token (for session restoration)
+export const getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");console.log(user)
+    if (!user) {
+      return error(res, "User not found", 404);
+    }
+    return success(res, {
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+      },
+      isAdmin: user.isAdmin,
+    }, "User retrieved successfully");
   } catch (err) {
     return error(res, err.message || "Server error", 500);
   }

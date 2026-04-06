@@ -26,10 +26,10 @@ export default function Orders() {
             <Table>
                 <TableHead>
                     <TableRow>
-                        <TableCell>Order ID</TableCell>
-                        <TableCell>User</TableCell>
-                        <TableCell>Total</TableCell>
-                        <TableCell>Status</TableCell>
+                        <TableCell sx={{fontWeight:600,fontSize:"1rem"}}>Order ID</TableCell>
+                        <TableCell sx={{fontWeight:600,fontSize:"1rem"}}>User</TableCell>
+                        <TableCell sx={{fontWeight:600,fontSize:"1rem"}}>Total</TableCell>
+                        <TableCell sx={{fontWeight:600,fontSize:"1rem"}}>Status</TableCell>
                     </TableRow>
                 </TableHead>
 
